@@ -2,17 +2,14 @@ package org.project.controller;
 
 import org.project.model.CreateOrderRequest;
 import org.project.model.InitiateOrderResponse;
+import org.project.model.PaymentResponse;
 import org.project.service.OrchestratorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @RestController
 @RequestMapping("/api/orders")
 public class OrchestratorController {
     private final OrchestratorService orchestratorService;
-    private static final Logger logger = LoggerFactory.getLogger(OrchestratorController.class);
 
     public OrchestratorController(OrchestratorService orchestratorService) {
         this.orchestratorService = orchestratorService;
@@ -34,16 +31,16 @@ public class OrchestratorController {
     }
 
     @PostMapping("/{orderId}/confirm")
-    public ResponseEntity<String> confirmOrder(
+    public ResponseEntity<?> confirmOrder(
             @PathVariable("orderId") String orderId) {
 
-        boolean success = orchestratorService.confirmOrder(orderId);
+        PaymentResponse payment = orchestratorService.confirmOrder(orderId);
 
-        if (success) {
-            return ResponseEntity.ok("CONFIRMED");
+        if (payment != null) {
+            return ResponseEntity.ok(payment);
         }
 
-        return ResponseEntity.ok("FAILED");
+        return ResponseEntity.badRequest().body("PAYMENT_NOT_CREATED_OR_REJECTED");
     }
 
     @PostMapping("/{orderId}/cancel")

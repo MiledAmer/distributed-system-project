@@ -1,10 +1,12 @@
 package org.project.service;
 
 import org.project.client.*;
+import org.project.account.AuthorizationResponse;
 import org.project.kitchen.TicketStatus;
 import org.project.account.AuthorizationStatus;
 import org.project.order.OrderStatus;
 import org.project.model.InitiateOrderResponse;
+import org.project.model.PaymentResponse;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,13 +66,13 @@ public class OrchestratorService {
     }
 
     // STEP 2: confirm order (payment + finalize)
-    public boolean confirmOrder(String orderId) {
+    public PaymentResponse confirmOrder(String orderId) {
         PendingOrder order = pending.remove(orderId);
 
         if (order == null)
-            return false;
+            return null;
 
-        var payment = accountClient.authorize(
+        AuthorizationResponse payment = accountClient.authorize(
                 orderId,
                 order.customerId(),
                 order.amount());
@@ -79,14 +81,17 @@ public class OrchestratorService {
                 payment.getStatus() != AuthorizationStatus.ACCEPTED) {
 
             rollback(orderId, order.ticketId());
-            return false;
+            return null;
         }
 
         orderClient.updateStatus(orderId, OrderStatus.APPROVED);
 
         kitchenClient.acceptTicket(order.ticketId());
 
-        return true;
+        return new PaymentResponse(
+                payment.getOrderId(),
+                payment.getStatus().name(),
+                payment.getSuccess());
     }
 
     // STEP 3: cancel order
