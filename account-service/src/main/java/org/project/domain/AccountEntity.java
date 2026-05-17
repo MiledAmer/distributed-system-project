@@ -63,4 +63,8 @@ public class AccountEntity {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public void setBalance(double amount) {
+        this.amount = amount;
+    }
 }
