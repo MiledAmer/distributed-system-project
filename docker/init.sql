@@ -1,2 +1,3 @@
 CREATE DATABASE orders_db;
 CREATE DATABASE kitchen_db;
+CREATE DATABASE account_db;
