@@ -14,21 +14,6 @@ services:
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - saga-net
-  account-service:
-    build:
-      context: .
-      dockerfile: docker/account.Dockerfile
-    container_name: account-service
-    ports:
-      - "50053:50053"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/account_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    networks:
-      - saga-net
   order-service:
     build:
       context: .
@@ -55,6 +40,21 @@ services:
       - postgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kitchen_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    networks:
+      - saga-net
+  account-service:
+    build:
+      context: .
+      dockerfile: docker/account.Dockerfile
+    container_name: account-service
+    ports:
+      - "50053:50053"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/account_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     networks:

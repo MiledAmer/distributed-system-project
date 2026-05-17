@@ -1,5 +1,7 @@
 package org.project.service;
 
+import java.math.BigDecimal;
+
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
@@ -30,9 +32,10 @@ public class AccountService extends AccountServiceImplBase {
 
             if (accountOptional.isEmpty()) {
                 status = AuthorizationStatus.REJECTED;
-            } else if (accountOptional.isPresent() && accountOptional.get().getAmount() >= amount) {
+            } else if (accountOptional.isPresent() && accountOptional.get().getAmount().compareTo(BigDecimal.valueOf(amount)) >= 0) {
                 AccountEntity account = accountOptional.get();
-                account.setBalance(account.getAmount() - amount);
+                // use BigDecimal subtraction instead of numeric minus
+                account.setBalance(account.getAmount().subtract(BigDecimal.valueOf(amount)));
                 account.setStatus("AUTHORIZED");
                 repository.save(account);
                 status = AuthorizationStatus.ACCEPTED;

@@ -1,6 +1,8 @@
 package org.project.domain;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -9,9 +11,6 @@ public class AccountEntity {
     @Id
     private String id;
 
-    @Column(name = "saga_id", nullable = false)
-    private String sagaId;
-
     @Column(name = "customer_id", nullable = false)
     private String customerId;
 
@@ -19,7 +18,7 @@ public class AccountEntity {
     private String status;
 
     @Column(name = "amount", nullable = false)
-    private double amount;
+    private BigDecimal  amount;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -27,9 +26,8 @@ public class AccountEntity {
     public AccountEntity() {
     }
 
-    public AccountEntity(String id, String sagaId, String customerId, String status, double amount) {
+    public AccountEntity(String id, String customerId, String status, BigDecimal  amount) {
         this.id = id;
-        this.sagaId = sagaId;
         this.customerId = customerId;
         this.status = status;
         this.amount = amount;
@@ -40,10 +38,6 @@ public class AccountEntity {
         return id;
     }
 
-    public String getSagaId() {
-        return sagaId;
-    }
-
     public String getCustomerId() {
         return customerId;
     }
@@ -52,7 +46,7 @@ public class AccountEntity {
         return status;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -64,7 +58,7 @@ public class AccountEntity {
         this.status = status;
     }
 
-    public void setBalance(double amount) {
+    public void setBalance(BigDecimal amount) {
         this.amount = amount;
     }
 }

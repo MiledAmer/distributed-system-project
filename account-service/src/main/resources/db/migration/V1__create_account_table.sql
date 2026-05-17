@@ -1,6 +1,5 @@
 CREATE TABLE accounts (
     id VARCHAR(255) PRIMARY KEY,
-    saga_id VARCHAR(255) NOT NULL,
     customer_id VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL,
     amount DECIMAL(19, 4) NOT NULL,
