@@ -3,23 +3,23 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# copy everything (important)
+# copy everything
 COPY proto-module /app/proto-module
-COPY order-service /app/order-service
+COPY kitchen-service /app/kitchen-service
 
-# build proto first
+# build proto module first
 RUN mvn -f /app/proto-module/pom.xml clean install
 
-# build service
-RUN mvn -f /app/order-service/pom.xml clean package -DskipTests
+# build kitchen service
+RUN mvn -f /app/kitchen-service/pom.xml clean package -DskipTests
 
 # -------- RUNTIME --------
 FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-COPY --from=builder /app/order-service/target/*.jar app.jar
+COPY --from=builder /app/kitchen-service/target/*.jar app.jar
 
-EXPOSE 50051
+EXPOSE 50052
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
