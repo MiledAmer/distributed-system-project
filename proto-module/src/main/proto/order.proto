@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package order;
+
+option java_multiple_files = true;
+option java_package = "org.project.order";
+option java_outer_classname = "OrderProto";
+
+enum OrderStatus {
+  APPROVAL_PENDING = 0;
+  APPROVED         = 1;
+  REJECTED         = 2;
+  CANCELED         = 3;
+}
+
+message CreateOrderRequest {
+  string sagaId     = 1;
+  string customerId = 2;
+  double amount     = 3;
+}
+
+message CreateOrderResponse {
+  string      orderId    = 1;
+  string      customerId = 2;
+  OrderStatus status     = 3;
+  double      amount     = 4;
+  bool        success    = 5;
+  string      sagaId     = 6;
+}
+
+message UpdateStatusRequest {
+  string      sagaId  = 1;
+  string      orderId = 2;
+  OrderStatus status  = 3;
+}
+
+message UpdateStatusResponse {
+  string      orderId   = 1;
+  OrderStatus newStatus = 2;
+  bool        success   = 3;
+  string      sagaId    = 4;
+}
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse);
+}

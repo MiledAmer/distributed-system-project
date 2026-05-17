@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package account;
+
+option java_multiple_files = true;
+option java_package = "org.project.account";
+option java_outer_classname = "AccountProto";
+
+enum AuthorizationStatus {
+  AUTHORIZATION_UNKNOWN = 0;
+  REJECTED              = 1;
+  ACCEPTED              = 2;
+}
+
+message AuthorizationRequest {
+  string sagaId     = 1;
+  string orderId    = 2;
+  string customerId = 3;
+  double amount     = 4;
+}
+
+message AuthorizationResponse {
+  string              orderId = 1;
+  AuthorizationStatus status  = 2;
+  bool                success = 3;
+}
+
+service AccountService {
+  rpc AuthorizePayment(AuthorizationRequest) returns (AuthorizationResponse);
+}

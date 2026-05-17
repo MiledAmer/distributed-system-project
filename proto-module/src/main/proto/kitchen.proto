@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.project.kitchen";
+option java_outer_classname = "KitchenProto";
+
+enum TicketStatus
+{
+  PENDING_APPROVAL = 0;
+  ACCEPTED         = 1;
+  REJECTED         = 2;
+  CANCELED         = 3;
+}
+
+message CreateTicketRequest
+{
+  string sagaId     = 1;
+  string ticketId   = 2;
+  string customerId = 3;
+}
+
+message CreateTicketResponse
+{
+  string       sagaId     = 1;
+  string       ticketId   = 2;
+  string       customerId = 3;
+  TicketStatus status     = 4;
+}
+
+message AcceptTicketRequest
+{
+  string sagaId   = 1;
+  string ticketId = 2;
+}
+
+message AcceptTicketResponse
+{
+  string       sagaId   = 1;
+  string       ticketId = 2;
+  TicketStatus status   = 3;
+}
+
+message RejectTicketRequest
+{
+  string sagaId   = 1;
+  string ticketId = 2;
+}
+
+message RejectTicketResponse
+{
+  string       sagaId   = 1;
+  string       ticketId = 2;
+  TicketStatus status   = 3;
+}
+
+message CancelTicketRequest
+{
+  string sagaId   = 1;
+  string ticketId = 2;
+}
+
+message CancelTicketResponse
+{
+  string       sagaId   = 1;
+  string       ticketId = 2;
+  TicketStatus status   = 3;
+}
+
+service KitchenService
+{
+  rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse);
+  rpc AcceptTicket(AcceptTicketRequest) returns (AcceptTicketResponse);
+  rpc RejectTicket(RejectTicketRequest) returns (RejectTicketResponse);
+  rpc CancelTicket(CancelTicketRequest) returns (CancelTicketResponse);
+}

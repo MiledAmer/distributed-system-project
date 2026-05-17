@@ -1,0 +1,12 @@
+.vscode/
+
+# Maven build output
+target/
+**/target/
+
+# Compiled classes
+*.class
+
+# Logs
+*.log
+logs/
