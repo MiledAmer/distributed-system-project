@@ -1,10 +1,12 @@
 package org.project.client;
 
+
 import io.grpc.ManagedChannel;
 import org.project.kitchen.*;
 
+
 public class KitchenClient {
-    private final KitchenServiceGrpc.KitchenServiceBlockingStub stub;
+     private final KitchenServiceGrpc.KitchenServiceBlockingStub stub;
 
     public KitchenClient(ManagedChannel channel) {
         this.stub = KitchenServiceGrpc.newBlockingStub(channel);
@@ -15,27 +17,31 @@ public class KitchenClient {
                 CreateTicketRequest.newBuilder()
                         .setTicketId(orderId)
                         .setCustomerId(customerId)
-                        .build());
+                        .build()
+        );
     }
 
     public void acceptTicket(String orderId) {
         stub.acceptTicket(
                 AcceptTicketRequest.newBuilder()
                         .setTicketId(orderId)
-                        .build());
+                        .build()
+        );
     }
 
     public void rejectTicket(String orderId) {
         stub.rejectTicket(
                 RejectTicketRequest.newBuilder()
                         .setTicketId(orderId)
-                        .build());
+                        .build()
+        );
     }
 
     public void cancelTicket(String orderId) {
         stub.cancelTicket(
                 CancelTicketRequest.newBuilder()
                         .setTicketId(orderId)
-                        .build());
+                        .build()
+        );
     }
 }
