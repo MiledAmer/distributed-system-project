@@ -5,11 +5,14 @@ import org.project.model.InitiateOrderResponse;
 import org.project.service.OrchestratorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrchestratorController {
     private final OrchestratorService orchestratorService;
+    private static final Logger logger = LoggerFactory.getLogger(OrchestratorController.class);
 
     public OrchestratorController(OrchestratorService orchestratorService) {
         this.orchestratorService = orchestratorService;

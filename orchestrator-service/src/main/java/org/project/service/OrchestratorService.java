@@ -10,8 +10,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class OrchestratorService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrchestratorService.class);
     private final OrderClient orderClient;
     private final KitchenClient kitchenClient;
     private final AccountClient accountClient;
@@ -52,24 +57,28 @@ public class OrchestratorService {
         pending.put(orderId, new PendingOrder(orderId, kitchenResponse.getTicketId(), customerId, amount));
 
         return new InitiateOrderResponse(
-            orderId,
-            orderResponse.getStatus().name(),
-            kitchenResponse.getTicketId(),
-            kitchenResponse.getStatus().name());
+                orderId,
+                orderResponse.getStatus().name(),
+                kitchenResponse.getTicketId(),
+                kitchenResponse.getStatus().name());
     }
 
     // STEP 2: confirm order (payment + finalize)
     public boolean confirmOrder(String orderId) {
-
         PendingOrder order = pending.remove(orderId);
 
         if (order == null)
             return false;
 
+        logger.info("pre payment authorization for orderId: {}, customerId: {}, amount: {}",
+                order.orderId(), order.customerId(), order.amount());
+
         var payment = accountClient.authorize(
                 orderId,
                 order.customerId(),
                 order.amount());
+        logger.info("post payment authorization for orderId: {}, success: {}, status: {}",
+                orderId, payment.getSuccess(), payment.getStatus());
 
         if (!payment.getSuccess() ||
                 payment.getStatus() != AuthorizationStatus.ACCEPTED) {
@@ -79,7 +88,11 @@ public class OrchestratorService {
         }
 
         orderClient.updateStatus(orderId, OrderStatus.APPROVED);
-        kitchenClient.acceptTicket(orderId);
+
+        logger.info("Order status updated to APPROVED for orderId: {}", orderId);
+
+        kitchenClient.acceptTicket(order.ticketId());
+        logger.info("Ticket accepted for orderId: {}", orderId);
 
         return true;
     }
@@ -93,8 +106,20 @@ public class OrchestratorService {
 
     // COMPENSATION LOGIC
     private void rollback(String orderId) {
+        logger.warn("Starting rollback for orderId: {}", orderId);
 
-        orderClient.updateStatus(orderId, OrderStatus.CANCELED);
-        kitchenClient.rejectTicket(orderId);
+        try {
+            orderClient.updateStatus(orderId, OrderStatus.CANCELED);
+            logger.info("Order status updated to CANCELED for orderId: {}", orderId);
+        } catch (Exception e) {
+            logger.error("Failed to update order status during rollback for orderId: {}", orderId, e);
+        }
+
+        try {
+            kitchenClient.cancelTicket(orderId);
+            logger.info("Ticket canceled for orderId: {}", orderId);
+        } catch (Exception e) {
+            logger.error("Failed to cancel ticket during rollback for orderId: {}", orderId, e);
+        }
     }
 }
