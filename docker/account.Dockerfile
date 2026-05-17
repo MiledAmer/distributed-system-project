@@ -20,6 +20,6 @@ WORKDIR /app
 
 COPY --from=builder /app/account-service/target/*.jar app.jar
 
-EXPOSE 50052
+EXPOSE 50053
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

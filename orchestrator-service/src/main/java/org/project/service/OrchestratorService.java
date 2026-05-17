@@ -4,6 +4,7 @@ import org.project.client.*;
 import org.project.kitchen.TicketStatus;
 import org.project.account.AuthorizationStatus;
 import org.project.order.OrderStatus;
+import org.project.model.InitiateOrderResponse;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +19,7 @@ public class OrchestratorService {
     // temporary state (saga tracking)
     private final Map<String, PendingOrder> pending = new ConcurrentHashMap<>();
 
-    private record PendingOrder(String orderId, String customerId, double amount) {
+    private record PendingOrder(String orderId, String ticketId, String customerId, double amount) {
     }
 
     public OrchestratorService(OrderClient orderClient,
@@ -29,7 +30,7 @@ public class OrchestratorService {
         this.accountClient = accountClient;
     }
 
-    public String initiateOrder(String customerId, double amount) {
+    public InitiateOrderResponse initiateOrder(String customerId, double amount) {
 
         var orderResponse = orderClient.createOrder(customerId, amount);
 
@@ -48,9 +49,13 @@ public class OrchestratorService {
             return null;
         }
 
-        pending.put(orderId, new PendingOrder(orderId, customerId, amount));
+        pending.put(orderId, new PendingOrder(orderId, kitchenResponse.getTicketId(), customerId, amount));
 
-        return orderId;
+        return new InitiateOrderResponse(
+            orderId,
+            orderResponse.getStatus().name(),
+            kitchenResponse.getTicketId(),
+            kitchenResponse.getStatus().name());
     }
 
     // STEP 2: confirm order (payment + finalize)
