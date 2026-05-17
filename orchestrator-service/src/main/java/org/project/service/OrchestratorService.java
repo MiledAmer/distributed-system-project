@@ -7,7 +7,9 @@ import org.project.order.OrderStatus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OrchestratorService {
     private final OrderClient orderClient;
     private final KitchenClient kitchenClient;
