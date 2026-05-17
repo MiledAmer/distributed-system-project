@@ -59,6 +59,21 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     networks:
       - saga-net
+  orchestrator-service:
+    build:
+      context: .
+      dockerfile: docker/orchestrator.Dockerfile
+    container_name: orchestrator-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - order-service
+      - kitchen-service
+      - account-service
+    networks:
+      - saga-net
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
 
 volumes:
   pgdata:
