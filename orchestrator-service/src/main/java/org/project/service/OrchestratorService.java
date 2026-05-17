@@ -70,29 +70,21 @@ public class OrchestratorService {
         if (order == null)
             return false;
 
-        logger.info("pre payment authorization for orderId: {}, customerId: {}, amount: {}",
-                order.orderId(), order.customerId(), order.amount());
-
         var payment = accountClient.authorize(
                 orderId,
                 order.customerId(),
                 order.amount());
-        logger.info("post payment authorization for orderId: {}, success: {}, status: {}",
-                orderId, payment.getSuccess(), payment.getStatus());
 
         if (!payment.getSuccess() ||
                 payment.getStatus() != AuthorizationStatus.ACCEPTED) {
 
-            rollback(orderId);
+            rollback(orderId, order.ticketId());
             return false;
         }
 
         orderClient.updateStatus(orderId, OrderStatus.APPROVED);
 
-        logger.info("Order status updated to APPROVED for orderId: {}", orderId);
-
         kitchenClient.acceptTicket(order.ticketId());
-        logger.info("Ticket accepted for orderId: {}", orderId);
 
         return true;
     }
@@ -100,12 +92,14 @@ public class OrchestratorService {
     // STEP 3: cancel order
     public void cancelOrder(String orderId) {
 
-        pending.remove(orderId);
-        rollback(orderId);
+        PendingOrder order = pending.remove(orderId);
+        if (order != null) {
+            rollback(orderId, order.ticketId());
+        }
     }
 
     // COMPENSATION LOGIC
-    private void rollback(String orderId) {
+    private void rollback(String orderId, String ticketId) {
         logger.warn("Starting rollback for orderId: {}", orderId);
 
         try {
@@ -116,7 +110,7 @@ public class OrchestratorService {
         }
 
         try {
-            kitchenClient.cancelTicket(orderId);
+            kitchenClient.cancelTicket(ticketId);
             logger.info("Ticket canceled for orderId: {}", orderId);
         } catch (Exception e) {
             logger.error("Failed to cancel ticket during rollback for orderId: {}", orderId, e);
