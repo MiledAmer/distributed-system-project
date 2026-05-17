@@ -1,5 +1,8 @@
 package org.project.model;
 
-public class CreateOrderRequest {
-    
+import jakarta.validation.constraints.NotNull;
+
+public record CreateOrderRequest(
+        @NotNull String customerId,
+        @NotNull double amount) {
 }

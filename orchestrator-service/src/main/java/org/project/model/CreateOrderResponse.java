@@ -1,5 +1,6 @@
 package org.project.model;
 
-public class CreateOrderResponse {
-    
+public record CreateOrderResponse(
+        String orderId,
+        String status) {
 }
