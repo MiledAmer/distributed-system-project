@@ -28,7 +28,9 @@ public class AccountService extends AccountServiceImplBase {
             AuthorizationStatus status;
             boolean success = false;
 
-            if (accountOptional.isPresent() && accountOptional.get().getAmount() >= amount) {
+            if (accountOptional.isEmpty()) {
+                status = AuthorizationStatus.REJECTED;
+            } else if (accountOptional.isPresent() && accountOptional.get().getAmount() >= amount) {
                 AccountEntity account = accountOptional.get();
                 account.setBalance(account.getAmount() - amount);
                 account.setStatus("AUTHORIZED");
